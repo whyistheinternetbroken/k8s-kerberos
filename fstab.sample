@@ -1,0 +1,3 @@
+## Rename to remove.sample and replace NFS server and mountpath with your information
+
+yournfsserver.domain.com:/yourmountpath /nfs nfs      hard,intr,nfsvers=4.1,sec=krb5        0 0
