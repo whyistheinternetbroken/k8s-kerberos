@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Run's a command in the SSSD container.
+#
+# Designed for use with request-key(8). Example uncontainerized request-key
+# config:
+#   create id_resolver * * /usr/sbin/nfsidmap -t 600 %k %d
+#
+# To containerize, change config to:
+#   create id_resolver * * in_sssd_container /usr/sbin/nfsidmap -t 600 %k %d
+
+set -o pipefail
+set -o errexit
+set -o nounset
+
+declare -r SSSD_PATH="/usr/sbin/sssd"
+
+sssd_pid=$(pgrep -nxf "${SSSD_PATH} .*") || {
+  >&2 echo "Failed to find process ID for SSSD. Is '${SSSD_PATH}' the right arg0 for the SSSD process?"
+  exit 1
+}
+
+exec nsenter --target "${sssd_pid}" --all "${@}"
