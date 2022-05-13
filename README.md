@@ -21,34 +21,33 @@ https://github.com/whyistheinternetbroken/ubuntu20-NFS-kerberos
 
 The following is the syntax I used:
 
-C:\> ktpass -princ primary/instance@REALM -mapuser DOMAIN\machine$ -crypto AES256-SHA1 +rndpass -ptype KRB5_NT_PRINCIPAL +Answer -out [file:\location]
+`C:\> ktpass -princ primary/instance@REALM -mapuser DOMAIN\machine$ -crypto AES256-SHA1 +rndpass -ptype KRB5_NT_PRINCIPAL +Answer -out [file:\location]`
 
 4) Copy the keytab to each of your Kubernetes cluster nodes as /etc/krb5.keytab. Test that the keytab is readable with: klist -kte
 
 This is an example of what the command output would look like:
 
-$ sudo klist -kte
-Keytab name: FILE:/etc/krb5.keytab
-KVNO Timestamp         Principal
----- ----------------- --------------------------------------------------------
-   3 01/01/70 00:00:00 root/nfs-poc-privile.cvsdemo.local@CVSDEMO.LOCAL (aes256-cts-hmac-sha1-96)
+`$ sudo klist -kte`<BR>
+`Keytab name: FILE:/etc/krb5.keytab`<BR>
+`KVNO Timestamp         Principal`<BR>
+`---- ----------------- --------------------------------------------------------`<BR>
+`   3 01/01/70 00:00:00 root/nfs-poc-privile.cvsdemo.local@CVSDEMO.LOCAL (aes256-cts-hmac-sha1-96)`<BR>
    
 5) Modify /etc/idmapd.conf on each Kubernetes node
 
 This is what the file contents would look like:
 
-[General]
-
-Domain = YOURDOMAIN.COM
+`[General]`<BR>
+`Domain = YOURDOMAIN.COM` <BR>
 
 You can check to see if the domain is set with the following:
 
-$ sudo nfsidmap -d
-YOURDOMAIN.COM
+`$ sudo nfsidmap -d`<BR>
+`YOURDOMAIN.COM`<BR>
 
 6) Modify the /etc/request-key.d/id_resolver.conf on each node to include the following line:
 
-create  id_resolver     *       *       /usr/bin/run_in_sssd_container /usr/sbin/nfsidmap -t 600 %k %d
+`create  id_resolver     *       *       /usr/bin/run_in_sssd_container /usr/sbin/nfsidmap -t 600 %k %d`
 
 
 **Container configuration**
@@ -104,7 +103,7 @@ This is how the pods should be created/run.
 
 Once in the unprivileged pod, check that usernames can be queried via SSSD (id username) and that you can su/kinit with:
 
-ksu username -n username
+`ksu username -n username`
 
 This will drop you into your user's shell and you should have a new Kerberos ticket. Then, try to access the mount.
 
@@ -112,52 +111,52 @@ NOTE: If you delete the privileged pod, be sure to enter bash and unmount the NF
 
 **Example**
 
-parisi@cloudshell:~$ kubectl create -f privileged-pod.yaml 
-pod/nfs-poc-privileged created
-parisi@cloudshell:~$ kubectl get pods
-NAME                 READY   STATUS    RESTARTS   AGE
-nfs-poc-privileged   1/1     Running   0          6s
+`parisi@cloudshell:~$ kubectl create -f privileged-pod.yaml `<BR>
+`pod/nfs-poc-privileged created`<BR>
+`parisi@cloudshell:~$ kubectl get pods`<BR>
+`NAME                 READY   STATUS    RESTARTS   AGE`<BR>
+`nfs-poc-privileged   1/1     Running   0          6s`<BR>
 
-parisi@cloudshell:~$ kubectl exec -it nfs-poc-privileged -- configure-nfs.sh
-Stopping NFS common utilities: gssd idmapd statd.
-Starting NFS common utilities: statd idmapd gssd.
-Stopping NFS common utilities: gssd idmapd statd.
-Starting NFS common utilities: statd idmapd gssd.
-Stopping NFS common utilities: gssd idmapd statd.
-Starting NFS common utilities: statd idmapd gssd.
-/nfs is not mounted. Mounting /nfs...
-Mount success!
+`parisi@cloudshell:~$ kubectl exec -it nfs-poc-privileged -- configure-nfs.sh`<BR>
+`Stopping NFS common utilities: gssd idmapd statd.`<BR>
+`Starting NFS common utilities: statd idmapd gssd.`<BR>
+`Stopping NFS common utilities: gssd idmapd statd.`<BR>
+`Starting NFS common utilities: statd idmapd gssd.`<BR>
+`Stopping NFS common utilities: gssd idmapd statd.`<BR>
+`Starting NFS common utilities: statd idmapd gssd.`<BR>
+`/nfs is not mounted. Mounting /nfs...`<BR>
+`Mount success!`<BR>
 
-parisi@cloudshell:~$ kubectl create -f unpriv-pod.yaml
-pod/nfs-poc-unprivileged created
-parisi@cloudshell:~$ kubectl get pods
-NAME                   READY   STATUS    RESTARTS   AGE
-nfs-poc-privileged     1/1     Running   0          66s
-nfs-poc-unprivileged   1/1     Running   0          3s
+`parisi@cloudshell:~$ kubectl create -f unpriv-pod.yaml`<BR>
+`pod/nfs-poc-unprivileged created`<BR>
+`parisi@cloudshell:~$ kubectl get pods`<BR>
+`NAME                   READY   STATUS    RESTARTS   AGE`<BR>
+`nfs-poc-privileged     1/1     Running   0          66s`<BR>
+`nfs-poc-unprivileged   1/1     Running   0          3s`<BR>
 
-parisi@cloudshell:~$ kubectl exec -it nfs-poc-unprivileged -- bash
-root@nfs-poc-unprivileged:/# id parisi
-uid=1019(parisi) gid=1020(parisigroup) groups=1020(parisigroup),513(domain users)
-root@nfs-poc-unprivileged:/# ksu parisi -n parisi
-Changing uid to parisi (1019)
-bash: /home/parisi/.bashrc: Key has expired
-parisi@nfs-poc-unprivileged:/$ kinit
-Password for parisi@CVSDEMO.LOCAL:
-parisi@nfs-poc-unprivileged:/$ klist
-Ticket cache: FILE:/tmp/krb5cc_1019.hnXlZKVV
-Default principal: parisi@CVSDEMO.LOCAL
+`parisi@cloudshell:~$ kubectl exec -it nfs-poc-unprivileged -- bash`<BR>
+`root@nfs-poc-unprivileged:/# id parisi`<BR>
+`uid=1019(parisi) gid=1020(parisigroup) groups=1020(parisigroup),513(domain users)`<BR>
+`root@nfs-poc-unprivileged:/# ksu parisi -n parisi`<BR>
+`Changing uid to parisi (1019)`<BR>
+`bash: /home/parisi/.bashrc: Key has expired`<BR>
+`parisi@nfs-poc-unprivileged:/$ kinit`<BR>
+`Password for parisi@CVSDEMO.LOCAL:`<BR>
+`parisi@nfs-poc-unprivileged:/$ klist`<BR>
+`Ticket cache: FILE:/tmp/krb5cc_1019.hnXlZKVV`<BR>
+`Default principal: parisi@CVSDEMO.LOCAL`<BR>
 
-Valid starting     Expires            Service principal
-05/13/22 12:40:32  05/13/22 22:40:32  krbtgt/CVSDEMO.LOCAL@CVSDEMO.LOCAL
-        renew until 05/20/22 12:40:29
+`Valid starting     Expires            Service principal`<BR>
+`05/13/22 12:40:32  05/13/22 22:40:32  krbtgt/CVSDEMO.LOCAL@CVSDEMO.LOCAL`<BR>
+`        renew until 05/20/22 12:40:29`<BR>
         
-parisi@nfs-poc-unprivileged:/$ cd /home
-parisi@nfs-poc-unprivileged:/home$ klist
-Ticket cache: FILE:/tmp/krb5cc_1019.hnXlZKVV
-Default principal: parisi@CVSDEMO.LOCAL
+`parisi@nfs-poc-unprivileged:/$ cd /home`<BR>
+`parisi@nfs-poc-unprivileged:/home$ klist`<BR>
+`Ticket cache: FILE:/tmp/krb5cc_1019.hnXlZKVV`<BR>
+`Default principal: parisi@CVSDEMO.LOCAL`<BR>
 
-Valid starting     Expires            Service principal
-05/13/22 12:40:32  05/13/22 22:40:32  krbtgt/CVSDEMO.LOCAL@CVSDEMO.LOCAL
-        renew until 05/20/22 12:40:29
-05/13/22 12:40:40  05/13/22 22:40:32  nfs/nfsserver.cvsdemo.local@CVSDEMO.LOCAL
-        renew until 05/20/22 12:40:29
+`Valid starting     Expires            Service principal`<BR>
+`05/13/22 12:40:32  05/13/22 22:40:32  krbtgt/CVSDEMO.LOCAL@CVSDEMO.LOCAL`<BR>
+`        renew until 05/20/22 12:40:29`<BR>
+`05/13/22 12:40:40  05/13/22 22:40:32  nfs/nfsserver.cvsdemo.local@CVSDEMO.LOCAL`<BR>
+`        renew until 05/20/22 12:40:29`<BR>
