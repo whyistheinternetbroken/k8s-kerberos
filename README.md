@@ -60,9 +60,11 @@ There will be two containers used here.
 
 The privileged container dockerfile can be found here:
 
+https://github.com/whyistheinternetbroken/k8s-kerberos/blob/main/privileged-container.dockerfile
 
 The unprivileged container dockerfile can be found here:
 
+https://github.com/whyistheinternetbroken/k8s-kerberos/blob/main/unprivileged-container.dockerfile
 
 I had to build each container and then push them up to the Docker hub to allow the pods to create properly. There are ways to localize the containers, but I did not explore doing that.
 
@@ -85,9 +87,11 @@ These are the pod YAML files used for this deployment.
 
 Privileged pod:
 
+https://github.com/whyistheinternetbroken/k8s-kerberos/blob/main/privileged-pod.yaml
 
 Unprivileged pod:
 
+https://github.com/whyistheinternetbroken/k8s-kerberos/blob/main/unprivileged-pod.yaml
 
 This is how the pods should be created/run.
 
