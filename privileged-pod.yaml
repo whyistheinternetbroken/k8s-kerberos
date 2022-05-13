@@ -1,0 +1,42 @@
+## Replace name with your desired name and image with your container.
+
+apiVersion: v1
+kind: Pod
+metadata:
+ name: nfs-privileged
+spec:
+ containers:
+   - name: privileged
+     image: tag/privileged-container
+     ports:
+       - containerPort: 80
+     securityContext:
+       privileged: true
+     volumeMounts:
+       - mountPath: /nfs
+         name: mountpoint-dir
+         mountPropagation: Bidirectional
+       - mountPath: /run/rpc_pipefs
+         name: rpc-pipefs
+         mountPropagation: Bidirectional
+       - mountPath: /etc/krb5.keytab
+         name: keytab
+         readOnly: true
+       - mountPath: /tmp
+         name: tmp
+ volumes:
+   - hostPath:
+       path: /var/lib/kubelet/plugins/kubernetes.io/csi/pv/pvc-123/globalmount
+       type: DirectoryOrCreate
+     name: mountpoint-dir
+   - hostPath:
+       path: /etc/krb5.keytab
+     name: keytab
+   - hostPath:
+       path: /run/rpc_pipefs
+       type: DirectoryOrCreate
+     name: rpc-pipefs
+   - hostPath:
+       path: /tmp
+       type: DirectoryOrCreate
+     name: tmp
