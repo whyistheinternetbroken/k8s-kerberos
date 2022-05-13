@@ -1,0 +1,40 @@
+## Replace name and image with your desired names and container images
+
+apiVersion: v1
+kind: Pod
+metadata:
+ name: nfs-unprivileged
+spec:
+ containers:
+   - name: unprivileged
+     image: tag/unprivileged
+     command:
+       - "/bin/bash"
+       - "-c"
+       - set -euo pipefail; while true; do echo $(date); sleep 1; done
+     volumeMounts:
+       - mountPath: /home
+         name: mountpoint-dir
+       - mountPath: /run/rpc_pipefs
+         name: rpc-pipefs
+       - mountPath: /etc/krb5.keytab
+         name: keytab
+         readOnly: true
+       - mountPath: /tmp
+         name: tmp
+ volumes:
+   - hostPath:
+       path: /var/lib/kubelet/plugins/kubernetes.io/csi/pv/pvc-123/globalmount
+       type: DirectoryOrCreate
+     name: mountpoint-dir
+   - hostPath:
+       path: /etc/krb5.keytab
+     name: keytab
+   - hostPath:
+       path: /run/rpc_pipefs
+       type: DirectoryOrCreate
+     name: rpc-pipefs
+   - hostPath:
+       path: /tmp
+       type: DirectoryOrCreate
+     name: tmp
