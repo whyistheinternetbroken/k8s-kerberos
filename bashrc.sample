@@ -1,0 +1,4 @@
+# When using this file, rename to remove .sample from the name
+# This file was created simply by copying the existing bashrc file from a profile and adding the following line to the bottom of the file:
+
+sh /usr/local/bin/configure-nfs.sh
