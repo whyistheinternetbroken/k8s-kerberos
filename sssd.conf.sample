@@ -1,0 +1,41 @@
+## Remove .sample from the file name and replace YOURDOMAIN.COM and yourdomain.com with your domain information. Be sure to also replace them in the search base fields.
+
+[domain/default]
+cache_credentials = False
+case_sensitive = False
+enumerate = True
+
+[sssd]
+config_file_version = 2
+services = nss, pam
+domains = YOURDOMAIN.com
+debug_level = 9
+[nss]
+filter_users = root,ldap,named,avahi,haldaemon,dbus,radiusd,news,nscd
+filter_groups = root
+[pam]
+
+[domain/YOURDOMAIN.com]
+auth_provider = ad
+access_provider = ad
+cache_credentials = False
+id_provider = ldap
+ldap_search_base = dc=yourdomain,dc=com
+ldap_schema = rfc2307bis
+## Kerberos binds
+ldap_sasl_mech = GSSAPI
+ldap_sasl_authid = root/clientname.yourdomain.com@YOURDOMAIN.COM
+krb5_server = dc.yourdomain.com
+krb5_realm = YOURDOMAIN.COM
+krb5_kpasswd = dc.yourdomain.com
+## LDAP attributes
+ldap_user_object_class = user
+ldap_group_object_class = group
+ldap_user_home_directory = unixHomeDirectory
+ldap_group_member = member
+ldap_user_principal = userPrincipalName
+ldap_user_search_base = cn=Users,dc=yourdomain,dc=com
+ldap_group_search_base = cn=Users,dc=yourdomain,dc=com
+#ldap_sasl_canonicalize = True
+use_fully_qualified_names = false
+[autofs]
