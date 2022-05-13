@@ -1,0 +1,8 @@
+## Rename to remove .sample from name and configure your domain to replace YOURDOMAIN.COM
+
+[General]
+Domain = YOURDOMAIN.COM
+
+[Mapping]
+Nobody-User = nobody
+Nobody-Group = nogroup
